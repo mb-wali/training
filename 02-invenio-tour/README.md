@@ -88,16 +88,25 @@ $ curl -k --header "Content-Type: application/json" \
     https://localhost:5000/api/records/?prettyprint=1
 
 {
-  "created": "2019-03-15T12:22:19.497592+00:00",
+  "_bucket": "a19a2299-4018-420e-95df-b293b003268f",
+  "created": "2019-11-22T13:45:31.834750+00:00",
   "id": "1",
-  "links": {"self": "https://localhost:5000/api/records/1"},
+  "links": {
+    "files": "https://localhost:5000/api/records/1/files",
+    "self": "https://localhost:5000/api/records/1"
+  },
   "metadata": {
-    "contributors": [{"name": "Doe, John"}],
+    "$schema": "https://my-site.com/schemas/records/record-v1.0.0.json",
+    "contributors": [
+      {
+        "name": "Doe, John"
+      }
+    ],
     "id": "1",
     "title": "Some title"
   },
   "revision": 0,
-  "updated": "2019-03-15T12:22:19.497596+00:00"
+  "updated": "2019-11-22T13:45:31.834764+00:00"
 }
 ```
 
@@ -108,16 +117,25 @@ request:
 $ curl -k https://localhost:5000/api/records/1?prettyprint=1
 
 {
-  "created": "2019-03-15T12:22:19.497592+00:00",
+  "_bucket": "a19a2299-4018-420e-95df-b293b003268f",
+  "created": "2019-11-22T13:45:31.834750+00:00",
   "id": "1",
-  "links": {"self": "https://localhost:5000/api/records/1"},
+  "links": {
+    "files": "https://localhost:5000/api/records/1/files",
+    "self": "https://localhost:5000/api/records/1"
+  },
   "metadata": {
-    "contributors": [{"name": "Doe, John"}],
+    "$schema": "https://my-site.com/schemas/records/record-v1.0.0.json",
+    "contributors": [
+      {
+        "name": "Doe, John"
+      }
+    ],
     "id": "1",
     "title": "Some title"
   },
   "revision": 0,
-  "updated": "2019-03-15T12:22:19.497596+00:00"
+  "updated": "2019-11-22T13:45:31.834764+00:00"
 }
 ```
 
@@ -142,22 +160,31 @@ $ curl -k https://localhost:5000/api/records/?prettyprint=1
   "hits": {
     "hits": [
       {
-        "created": "2019-03-15T12:22:19.497592+00:00",
+        "_bucket": "a19a2299-4018-420e-95df-b293b003268f",
+        "created": "2019-11-22T13:45:31.834750+00:00",
         "id": "1",
-        "links": {"self": "https://localhost:5000/api/records/1"},
+        "links": {
+          "files": "https://localhost:5000/api/records/1/files",
+          "self": "https://localhost:5000/api/records/1"
+        },
         "metadata": {
-          "contributors": [{"name": "Doe, John"}],
+          "$schema": "https://my-site.com/schemas/records/record-v1.0.0.json",
+          "contributors": [
+            {
+              "name": "Doe, John"
+            }
+          ],
           "id": "1",
           "title": "Some title"
         },
         "revision": 0,
-        "updated": "2019-03-15T12:22:19.497596+00:00"
+        "updated": "2019-11-22T13:45:31.834764+00:00"
       }
     ],
     "total": 1
   },
   "links": {
-    "self": "https://localhost:5000/api/records/?page=1&sort=mostrecent&size=10"
+    "self": "https://localhost:5000/api/records/?sort=mostrecent&size=10&page=1"
   }
 }
 ```
@@ -167,8 +194,8 @@ address this in later sessions.
 
 ## Step 5: Search and Record UI
 
-Of the REST API is not the only way to display information on records. If you
-navigate to the frontpage and click the search button you will go the
+The REST API is not the only way to display information on records. If you
+navigate to the front page and click the search button you will go the
 records search page:
 
 ![](./images/frontpage-search.png)
@@ -183,7 +210,7 @@ Let's create some more records, to demonstrate the querying capabilities:
 ![](./images/search-more-records.png)
 
 Let's say, we want to get all of the records written by "Smith" we could
-naively type `Smith` in the searchbox, but that would give us all records that
+naively type `Smith` in the search box, but that would give us all records that
 contain the text "Smith" in any of their fields (even the title):
 
 ![](./images/search-query.png)
