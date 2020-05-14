@@ -4,7 +4,7 @@ The goal of this tutorial is to learn how to update your data model. We will sho
 update your [`JSONSchema`](https://json-schema.org/) to store a new field in the DB and your ES mapping so you can search for it.
 Moreover, we will learn how [`Marshmallow`](https://marshmallow.readthedocs.io) schema can be used to validate your data.
 
-### Table of Contents
+## Table of Contents
 
 - [Step 1: Bootstrap exercise](#step-1-bootstrap-exercise)
 - [Step 2: Update the JSONSchema](#step-2-update-the-JSONSchema)
@@ -20,8 +20,8 @@ Moreover, we will learn how [`Marshmallow`](https://marshmallow.readthedocs.io) 
 If you completed the previous tutorial, you can skip this step. If instead you would like to start from a clean state run the following commands:
 
 ```bash
-$ cd ~/src/training/
-$ ./start-from.sh 05-customizing-invenio
+cd ~/src/training/
+./start-from.sh 05-customizing-invenio
 ```
 
 ## Step 2: Update the JSONSchema
@@ -77,6 +77,7 @@ So, in order to update the mapping we edit the `my_site/records/mappings/v7/reco
 ```
 
 ## Step 4: Update the Marshmallow schema
+
 Next thing is to update our marshmallow schema in order to allow our new field to be validated by our loader. To
 achieve that we edit the `my_site/records/marshmallow/json.py`:
 
@@ -97,7 +98,7 @@ class MetadataSchemaV1(StrictKeysMixin):
 Now in order to **reflect our changes** in our system we will have to run the following command:
 
 ```bash
-$ ./scripts/setup
+./scripts/setup
 ```
 
 We have created and started a new DB and ES along with the updated schemas and mappings.
@@ -113,16 +114,25 @@ We have created and started a new DB and ES along with the updated schemas and m
 Run the below command to create our new record:
 
 ```bash
-$ curl -k --header "Content-Type: application/json" \
-    --request POST \
-    --data '{"title":"Some title", "contributors": [{"name": "Doe, John"}], "owner": "owner"}' \
-    https://localhost:5000/api/records/?prettyprint=1
+curl -k --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"title":"Some title", "contributors": [{"name": "Doe, John"}], "owner": "owner"}' \
+  https://localhost:5000/api/records/?prettyprint=1
 ```
 
 After executing the command you should see in your console the following output:
 
 ```json
-{"status": 400, "message": "Validation error.", "errors": [{"field": "owner", "message": "Not a valid integer."}]}
+{
+  "status": 400,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "owner",
+      "message": "Not a valid integer."
+    }
+  ]
+}
 ```
 
 It seems that our request wasn't successful. By checking again the error message we can see that in our request
@@ -135,18 +145,17 @@ By having that in mind, before when we did our request our loader used the marsh
 So now let's fix the data we sent before and create our record!
 
 ```bash
-$ curl -k --header "Content-Type: application/json" \
-    --request POST \
-    --data '{"title":"Some title", "contributors": [{"name": "Doe, John"}], "owner": 1}' \
-    https://localhost:5000/api/records/?prettyprint=1
+curl -k --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"title":"Some title", "contributors": [{"name": "Doe, John"}], "owner": 1}' \
+  https://localhost:5000/api/records/?prettyprint=1
 ```
 
 Now you should see an output similar to the below:
 
 ```json
 {
-  "_bucket": "60f2b083-8f7b-4aba-a00e-09e3bb3e12af",
-  "created": "2019-11-25T07:41:44.620275+00:00",
+  "created": "2020-05-12T14:41:44.801477+00:00",
   "id": "1",
   "links": {
     "files": "https://localhost:5000/api/records/1/files",
@@ -163,9 +172,10 @@ Now you should see an output similar to the below:
     "title": "Some title"
   },
   "revision": 0,
-  "updated": "2019-11-25T07:41:44.620282+00:00"
+  "updated": "2020-05-12T14:41:44.801484+00:00"
 }
 ```
+
 **Tip**: Save somewhere the `id` value of this response!
 
 Our new record was successfully created!
