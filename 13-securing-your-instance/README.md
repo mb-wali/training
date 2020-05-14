@@ -1,8 +1,9 @@
-## Tutorial 13 - Securing your Invenio instance
+# Tutorial 13 - Securing your Invenio instance
 
 In this session, you will discover the key points which will ensure that your Invenio instances are secure. You will learn how to protect the web application with configuration, package management and authentication.
 
-Table of contents:
+## Table of contents:
+
 - [Step 1: Bootstrap exercise](#step-1-bootstrap-exercise)
 - [Step 2: Lets create some demo data](#step-2-lets-create-some-demo-data)
 - [Step 3: Configuration - allowed hosts](#step-3-Configuration-allowed-hosts)
@@ -22,28 +23,26 @@ Table of contents:
 If you completed the previous tutorial, you can skip this step. If instead you would like to start from a clean state run the following commands:
 
 ```bash
-$ cd ~/src/training/
-$ ./start-from.sh 12-managing-access
+cd ~/src/training/
+./start-from.sh 12-managing-access
 ```
 
 ## Step 2: Lets create some demo data
 
 We will clean all the data created before and create some users and records for this tutorial.
 
-```console
-$ ~/src/my-site
-$ ./scripts/setup
-$ # with an instance of ./scripts/server running we create users and records
-$ . ~/src/training/13-securing-your-instance/demo-data.sh
+```bash
+~/src/my-site
+./scripts/setup
+# with an instance of ./scripts/server running we create users and records
+. ~/src/training/13-securing-your-instance/demo-data.sh
 ```
-
-
 
 ## Step 3: Configuration allowed hosts
 
 You should update our `APP_ALLOWED_HOSTS` to the correct value in your production instances. If you try to make a request with different host header than this one you will be blocked.
 
-```console
+```bash
 $ curl -ki -H "Host: evil.io" https://127.0.0.1:5000/api/records/ -H "Authorization: Bearer $BOOTCAMP_ACCESS_TOKEN"
 HTTP/1.0 400 BAD REQUEST
 Content-Type: application/json
@@ -79,7 +78,7 @@ Lets say now that you allow now  any host in `my_site/config.py`:
 
 Now potential attackers could inject a host header and make all your self links point to their evil site:
 
-```console
+```bash
 $ curl -kI -H "Host: evil.io" "https://127.0.0.1:5000/api/records/?prettyprint=1" -H "Authorization: Bearer $BOOTCAMP_ACCESS_TOKEN"
 HTTP/1.0 200 OK
 Content-Type: application/json
@@ -116,10 +115,11 @@ Change in `my_site/config.py` your `SECRET_KEY` and store it safely with only on
 ```
 
 For example, we could use the Python 3 `secrets` library:
-```console
-$ export OLD_SECRET_KEY=CHANGE_ME
-$ export NEW_SECRET_KEY=`python -c 'import secrets; print(secrets.token_hex(32))'`
-$ sed -i "s/$OLD_SECRET_KEY/$NEW_SECRET_KEY/g" my_site/config.py
+
+```bash
+export OLD_SECRET_KEY=CHANGE_ME
+export NEW_SECRET_KEY=`python -c 'import secrets; print(secrets.token_hex(32))'`
+sed -i "s/$OLD_SECRET_KEY/$NEW_SECRET_KEY/g" my_site/config.py
 ```
 
 ## Step 5: Configuration SSL certificates
@@ -135,7 +135,7 @@ two servers, the HAProxy load balancer and the Nginx reserve proxy, before arriv
 
 ## Step 7: Invenio HTTP headers walk-through
 
-```console
+```bash
 $ curl -kI https://127.0.0.1:5000/api/records/ -H "Authorization: Bearer $BOOTCAMP_ACCESS_TOKEN"
 HTTP/1.0 200 OK
 Content-Type: application/json
@@ -188,22 +188,23 @@ Where do we allow content in our Invenio instances to be loaded from?
 {%- endblock %}
 ```
 
-![](csp-rule.png)
+![Content security policy console error](csp-rule.png)
 
 Note: It is possible to run into problems regarding CSP rules when dealing with third party libraries such as Flask-Admin, which provides a part of the application's UI. Something similar to [this](https://github.com/inveniosoftware/invenio-admin/commit/0d4ef61040e2db5183ba59e93d64ec4242f752f3) can be done.
 
 ## Step 9: Keeping packages up to date
 
 It is really important that you keep your packages up to date. Since we are using `pipenv` to manage our application we should follow [`pipenv`'s upgrade workflow](https://pipenv.readthedocs.io/en/latest/basics/#example-pipenv-upgrade-workflow)
-```console
-$ pipenv update --outdated
-$ pipenv update [all|specific-outdated-package]
+
+```bash
+pipenv update --outdated
+pipenv update [all|specific-outdated-package]
 ```
 
 `pipenv` also offers a way of checking all your dependencies and spot package versions which have been publicly discovered as vulnerable.
 
-```console
-$ pipenv check
+```bash
+pipenv check
 ```
 
 ## Step 10: Secure file uploads
@@ -216,7 +217,7 @@ We should be really careful with what we allow users to upload in our instances,
 
 ## Step 11: Auth workflows
 
-**Server-side rendered applications**
+### Server-side rendered applications
 
 Invenio works currently by rendering the application on server-side using Jinja2 templates.
 
@@ -235,9 +236,9 @@ If we open console in the browser and try to display the cookies, we will only b
 "csrftoken=secretJWTtoken; fldt=hide"
 ```
 
-**Client-side/REST applications**
+### Client-side/REST applications
 
-The behaviour when building a single app application should be the same as the one currently used in Invenio. The _Secure_ and _HttpOnly_ session cookie plus a JWT as CSRF.
+The behavior when building a single app application should be the same as the one currently used in Invenio. The _Secure_ and _HttpOnly_ session cookie plus a JWT as CSRF.
 
 This JWT token is compatible with REST applications since it holds all necessary data to identify the user allowing a stateful communication between frontend and backend.
 
@@ -245,18 +246,18 @@ This JWT token is compatible with REST applications since it holds all necessary
 
 We have been using access tokens during the exercises, but if you want to create them yourself you can do it through the user interface:
 
-![](token-ui.png)
+![Settings page, applications tab, token management](token-ui.png)
 
 Or through the command line interface:
 
-```console
+```bash
 $ my-site tokens create -n tokenname -u <username>
 newsupersecrettoken
 ```
 
 Once you have your token you can start doing authenticated requests by adding the token in the HTTP header:
 
-```console
+```bash
 $ export MY_SITE_ACCESS_TOKEN=newsupersecrettoken
 $ curl -k "https://127.0.0.1:5000/api/records/2?prettyprint=1" -H "Authorization: Bearer $MY_SITE_ACCESS_TOKEN"
 {
@@ -284,20 +285,22 @@ $ curl -k "https://127.0.0.1:5000/api/records/2?prettyprint=1" -H "Authorization
 
 All user tokens are encrypted when stored in the database. Therefore, if the application `SECRET_KEY` is changed, these tokens need to be migrated:
 
-```console
-$ export NEW_SECRET_KEY=myoldsecretkey
-$ export EVEN_NEWER_SECRET_KEY=`python -c 'import secrets; print(secrets.token_hex(32))'`
-$ sed -i "s/$NEW_SECRET_KEY/$EVEN_NEWER_SECRET_KEY/g" my_site/config.py
+```bash
+export NEW_SECRET_KEY=myoldsecretkey
+export EVEN_NEWER_SECRET_KEY=`python -c 'import secrets; print(secrets.token_hex(32))'`
+sed -i "s/$NEW_SECRET_KEY/$EVEN_NEWER_SECRET_KEY/g" my_site/config.py
 ```
 
 If we just change the secret key, our users will not be able to use their credentials:
-```console
+
+```bash
 $ curl -k "https://127.0.0.1:5000/api/records/2?prettyprint=1" -H "Authorization: Bearer $MY_SITE_ACCESS_TOKEN"
 {"message":"The server could not verify that you are authorized to access the URL requested.  You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.","status":401}
 ```
 
 We need to migrate all tokens:
-```console
+
+```bash
 $ my-site instance migrate-secret-key --old-key $NEW_SECRET_KEY
 Successfully changed secret key.
 $ curl -k "https://127.0.0.1:5000/api/records/2?prettyprint=1" -H "Authorization: Bearer $MY_SITE_ACCESS_TOKEN"
@@ -326,9 +329,9 @@ We should do all together to minimize downtime. We first change secret key, we m
 
 ## What did we learn
 
-* How to securely configure Invenio
-* Why Invenio behaves like it does by default, HTTP headers
-* How Invenio handles CSP rules
-* How to keep your Invenio instance up to date and free of vulnerable packages
-* How Invenio will take care of serving files (potential vector of attack) but for now you should take care of it yourself
-* How auth workflows work in Invenio
+- How to securely configure Invenio
+- Why Invenio behaves like it does by default, HTTP headers
+- How Invenio handles CSP rules
+- How to keep your Invenio instance up to date and free of vulnerable packages
+- How Invenio will take care of serving files (potential vector of attack) but for now you should take care of it yourself
+- How auth workflows work in Invenio
